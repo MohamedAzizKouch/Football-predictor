@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Matchday — Football Prediction System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F4EC;
+    --ink:#182A20;
+    --pitch:#2E6B44;
+    --pitch-deep:#1F4B30;
+    --chalk:#FFFFFF;
+    --flag:#B3441E;
+    --line: rgba(24,42,32,0.14);
+    --line-strong: rgba(24,42,32,0.35);
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-font-smoothing:antialiased;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    line-height:1.45;
+  }
+  a{color:inherit;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 24px 80px;}
+
+  /* Masthead */
+  header.mast{
+    border-bottom:3px solid var(--ink);
+    padding:28px 0 16px;
+    margin-bottom:28px;
+  }
+  .mast-row{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;}
+  .mast-title{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:clamp(28px,4vw,42px);
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+  .mast-title .accent{color:var(--pitch);font-style:italic;font-weight:600;}
+  .mast-meta{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink);
+    opacity:0.65;
+  }
+  .kicker{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--pitch-deep);
+    margin:0 0 6px;
+  }
+
+  /* Selector "team sheet" */
+  .teamsheet{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    border:1.5px solid var(--ink);
+    margin-bottom:20px;
+  }
+  .teamsheet .col{padding:20px 22px;}
+  .teamsheet .col + .col{border-left:1.5px solid var(--ink);}
+  .field-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    opacity:0.6;
+    display:block;
+    margin-bottom:6px;
+  }
+  select, input[type=number]{
+    width:100%;
+    font-family:'Fraunces',serif;
+    font-size:20px;
+    font-weight:600;
+    padding:8px 4px;
+    border:none;
+    border-bottom:2px solid var(--line-strong);
+    background:transparent;
+    color:var(--ink);
+    appearance:none;
+    -webkit-appearance:none;
+  }
+  select:focus, input:focus{
+    outline:none;
+    border-bottom-color:var(--pitch);
+  }
+  select:focus-visible, input:focus-visible, button:focus-visible{
+    outline:2px solid var(--pitch);
+    outline-offset:2px;
+  }
+  .league-row{padding:16px 22px;border-top:1.5px solid var(--ink);grid-column:1/-1;
+    display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .league-row .field-label{margin:0;white-space:nowrap;}
+  .league-row select{font-size:16px;max-width:280px;}
+
+  .go-row{margin:20px 0 8px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  button.kickoff{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    background:var(--pitch);
+    color:var(--chalk);
+    border:none;
+    padding:14px 28px;
+    cursor:pointer;
+    transition:background 0.15s ease, transform 0.1s ease;
+  }
+  button.kickoff:hover{background:var(--pitch-deep);}
+  button.kickoff:active{transform:scale(0.98);}
+  #status{font-family:'IBM Plex Mono',monospace;font-size:12px;opacity:0.7;}
+
+  /* xG scoreline (signature-adjacent) */
+  .scoreline{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:28px;
+    margin:36px 0 8px;
+    padding:28px 0;
+    border-top:1.5px solid var(--ink);
+    border-bottom:1.5px solid var(--ink);
+  }
+  .scoreline .team{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:clamp(16px,2.4vw,22px);
+    text-align:center;
+    max-width:220px;
+  }
+  .scoreline .xg{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:clamp(38px,7vw,58px);
+    font-variant-numeric:tabular-nums;
+    color:var(--pitch-deep);
+    line-height:1;
+  }
+  .scoreline .xg-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    opacity:0.55;
+    margin-top:4px;
+  }
+  .scoreline .vs{font-family:'Fraunces',serif;font-style:italic;font-size:20px;opacity:0.5;}
+
+  /* Section headers */
+  h2.section{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    border-bottom:1.5px solid var(--ink);
+    padding-bottom:8px;
+    margin:44px 0 16px;
+  }
+  h2.section span{opacity:0.45;font-weight:400;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:32px;}
+  @media (max-width:720px){
+    .grid2{grid-template-columns:1fr;}
+    .teamsheet{grid-template-columns:1fr;}
+    .teamsheet .col + .col{border-left:none;border-top:1.5px solid var(--ink);}
+  }
+
+  table.market{width:100%;border-collapse:collapse;font-size:14px;}
+  table.market th{
+    text-align:left;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    opacity:0.55;
+    font-weight:500;
+    padding:6px 4px;
+    border-bottom:1px solid var(--line-strong);
+  }
+  table.market td{
+    padding:9px 4px;
+    border-bottom:1px solid var(--line);
+    font-family:'Inter',sans-serif;
+  }
+  table.market td.num{
+    font-family:'IBM Plex Mono',monospace;
+    font-variant-numeric:tabular-nums;
+    text-align:right;
+  }
+  table.market tr:last-child td{border-bottom:none;}
+
+  /* Correct score heat grid — the signature element */
+  .csgrid{
+    display:inline-grid;
+    border:1.5px solid var(--ink);
+    margin-top:4px;
+  }
+  .csgrid .cs-row{display:contents;}
+  .cs-cell{
+    width:52px;height:52px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border-right:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .cs-cell .score{font-size:13px;font-weight:600;}
+  .cs-cell .pct{font-size:9px;opacity:0.65;}
+  .cs-axis{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    opacity:0.55;
+    display:flex;align-items:center;justify-content:center;
+    width:52px;height:52px;
+  }
+  .csgrid-wrap{overflow-x:auto;padding-bottom:4px;}
+
+  /* Value bets */
+  .odds-form{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(150px,1fr));
+    gap:14px 20px;
+    border:1.5px solid var(--ink);
+    padding:20px 22px;
+    margin-top:16px;
+  }
+  .odds-form label{display:block;}
+  .odds-form input{font-size:16px;border-bottom:1.5px solid var(--line-strong);}
+
+  .value-row{background:transparent;}
+  .value-row.positive td{color:var(--pitch-deep);font-weight:600;}
+  .value-row.positive td.edge::before{content:"▲ ";font-size:10px;}
+
+  footer{
+    margin-top:60px;
+    padding-top:16px;
+    border-top:1px solid var(--line-strong);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    opacity:0.55;
+  }
+
+  .empty-note{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-size:16px;
+    opacity:0.6;
+    padding:40px 0;
+    text-align:center;
+  }
+
+  @media (prefers-reduced-motion:no-preference){
+    .fade-in{animation:fadeIn 0.35s ease both;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="mast">
+    <div class="mast-row">
+      <h1 class="mast-title">Matchday <span class="accent">Odds</span></h1>
+      <div class="mast-meta" id="dataMeta">loading data…</div>
+    </div>
+  </header>
+
+  <p class="kicker">Select fixture</p>
+  <div class="teamsheet">
+    <div class="league-row">
+      <span class="field-label">League</span>
+      <select id="leagueSelect"></select>
+    </div>
+    <div class="col">
+      <span class="field-label">Home</span>
+      <select id="homeSelect"></select>
+    </div>
+    <div class="col">
+      <span class="field-label">Away</span>
+      <select id="awaySelect"></select>
+    </div>
+  </div>
+
+  <div class="go-row">
+    <button class="kickoff" id="goBtn">Get prediction</button>
+    <span id="status"></span>
+  </div>
+
+  <div id="results" style="display:none;">
+
+    <div class="scoreline fade-in">
+      <div class="team" id="homeLabel">—</div>
+      <div style="text-align:center;">
+        <div class="xg" id="homeXg">–</div>
+        <div class="xg-label">expected goals</div>
+      </div>
+      <div class="vs">v</div>
+      <div style="text-align:center;">
+        <div class="xg" id="awayXg">–</div>
+        <div class="xg-label">expected goals</div>
+      </div>
+      <div class="team" id="awayLabel">—</div>
+    </div>
+
+    <h2 class="section">Match result</h2>
+    <div class="grid2">
+      <div>
+        <table class="market" id="tbl1x2"></table>
+      </div>
+      <div>
+        <table class="market" id="tblDC"></table>
+      </div>
+    </div>
+
+    <h2 class="section">Goals markets</h2>
+    <div class="grid2">
+      <div>
+        <table class="market" id="tblBTTS"></table>
+        <table class="market" id="tblTotals" style="margin-top:20px;"></table>
+      </div>
+      <div>
+        <table class="market" id="tblOU"></table>
+      </div>
+    </div>
+
+    <h2 class="section">Correct score <span>probability grid — home goals ↓ · away goals →</span></h2>
+    <div class="csgrid-wrap">
+      <div class="csgrid" id="csGrid"></div>
+    </div>
+
+    <h2 class="section">Value vs bookmaker odds <span>optional — leave at 0 to skip a market</span></h2>
+    <div class="odds-form" id="oddsForm"></div>
+    <table class="market" id="tblValue" style="margin-top:20px;"></table>
+
+  </div>
+
+  <div id="emptyState" class="empty-note">Pick a league and two teams above, then press <em>Get prediction</em>.</div>
+
+  <footer>
+    Model: Dixon-Coles Poisson, fitted per league on real historical results, refreshed automatically.
+    Not financial advice — probabilities are estimates, not guarantees.
+  </footer>
+</div>
+
+<script>
+const MODELS_URL = "models.json";
+let MODELS = null;
+
+const $ = (id) => document.getElementById(id);
+
+// ---------------------------------------------------------------------
+// Math: Dixon-Coles engine (mirrors the Python training/serving logic)
+// ---------------------------------------------------------------------
+
+function factorial(k){ let r=1; for(let i=2;i<=k;i++) r*=i; return r; }
+function poissonPmf(k, lambda){ return Math.exp(-lambda) * Math.pow(lambda, k) / factorial(k); }
+
+function dcAdjustment(hg, ag, lamH, lamA, rho){
+  if(hg===0 && ag===0) return 1 - lamH*lamA*rho;
+  if(hg===0 && ag===1) return 1 + lamH*rho;
+  if(hg===1 && ag===0) return 1 + lamA*rho;
+  if(hg===1 && ag===1) return 1 - rho;
+  return 1.0;
+}
+
+function expectedGoals(model, home, away){
+  const lamH = model.attack[home] * model.defense[away] * model.home_advantage;
+  const lamA = model.attack[away] * model.defense[home];
+  return [lamH, lamA];
+}
+
+function scoreMatrix(model, home, away, maxGoals=8){
+  const [lamH, lamA] = expectedGoals(model, home, away);
+  const n = maxGoals+1;
+  let matrix = [];
+  for(let i=0;i<n;i++){
+    matrix.push(new Array(n).fill(0));
+  }
+  for(let i=0;i<n;i++){
+    for(let j=0;j<n;j++){
+      matrix[i][j] = poissonPmf(i, lamH) * poissonPmf(j, lamA);
+    }
+  }
+  for(let i=0;i<2;i++){
+    for(let j=0;j<2;j++){
+      matrix[i][j] *= dcAdjustment(i, j, lamH, lamA, model.rho);
+    }
+  }
+  let total = 0;
+  for(let i=0;i<n;i++) for(let j=0;j<n;j++) total += matrix[i][j];
+  for(let i=0;i<n;i++) for(let j=0;j<n;j++) matrix[i][j] /= total;
+  return {matrix, lamH, lamA, n};
+}
+
+function computeMarkets(matrix, n){
+  let pHome=0, pDraw=0, pAway=0, pBtts=0;
+  const homeMarg = new Array(n).fill(0), awayMarg = new Array(n).fill(0);
+  for(let i=0;i<n;i++){
+    for(let j=0;j<n;j++){
+      const p = matrix[i][j];
+      homeMarg[i]+=p; awayMarg[j]+=p;
+      if(i>j) pHome+=p; else if(i===j) pDraw+=p; else pAway+=p;
+      if(i>=1 && j>=1) pBtts+=p;
+    }
+  }
+
+  const totalDist = {};
+  for(let t=0;t<2*n-1;t++){
+    let p=0;
+    for(let i=0;i<n;i++){ const j=t-i; if(j>=0 && j<n) p+=matrix[i][j]; }
+    totalDist[t]=p;
+  }
+  const ouLines = [0.5,1.5,2.5,3.5,4.5];
+  const ou = {};
+  ouLines.forEach(line=>{
+    let under=0;
+    for(const t in totalDist){ if(Number(t)<line) under+=totalDist[t]; }
+    ou[line] = {over: 1-under, under};
+  });
+
+  const ttLines=[0.5,1.5,2.5];
+  const tt = {};
+  ttLines.forEach(line=>{
+    let hOver=0, aOver=0;
+    for(let g=0;g<n;g++){ if(g>line){ hOver+=homeMarg[g]; aOver+=awayMarg[g]; } }
+    tt[line] = {home: hOver, away: aOver};
+  });
+
+  return {pHome, pDraw, pAway, pBtts, ou, tt, homeMarg, awayMarg};
+}
+
+// ---------------------------------------------------------------------
+// Rendering
+// ---------------------------------------------------------------------
+
+function fmtPct(p){ return (p*100).toFixed(1)+"%"; }
+function fmtOdds(p){ return p>0 ? (1/p).toFixed(2) : "—"; }
+
+function renderTable(el, rows, headers=["Selection","Prob.","Fair odds"]){
+  let html = "<tr>"+headers.map(h=>`<th>${h}</th>`).join("")+"</tr>";
+  rows.forEach(([label, prob])=>{
+    html += `<tr><td>${label}</td><td class="num">${fmtPct(prob)}</td><td class="num">${fmtOdds(prob)}</td></tr>`;
+  });
+  el.innerHTML = html;
+}
+
+function renderCorrectScoreGrid(matrix, n, maxShow=6){
+  const shown = Math.min(n, maxShow);
+  let maxP = 0;
+  for(let i=0;i<shown;i++) for(let j=0;j<shown;j++) maxP = Math.max(maxP, matrix[i][j]);
+
+  const grid = $("csGrid");
+  grid.style.gridTemplateColumns = `52px repeat(${shown}, 52px)`;
+  let html = `<div class="cs-axis"></div>`;
+  for(let j=0;j<shown;j++) html += `<div class="cs-axis">${j}</div>`;
+  for(let i=0;i<shown;i++){
+    html += `<div class="cs-axis">${i}</div>`;
+    for(let j=0;j<shown;j++){
+      const p = matrix[i][j];
+      const intensity = maxP>0 ? p/maxP : 0;
+      const bg = `rgba(46,107,68,${(intensity*0.75).toFixed(2)})`;
+      html += `<div class="cs-cell" style="background:${bg};">
+        <div class="score">${i}-${j}</div>
+        <div class="pct">${(p*100).toFixed(1)}%</div>
+      </div>`;
+    }
+  }
+  grid.innerHTML = html;
+}
+
+function kellyStake(prob, odds, bankroll, fraction=0.25){
+  const b = odds - 1;
+  if(b<=0) return 0;
+  const f = Math.max(0, (b*prob - (1-prob)) / b);
+  return Math.round(bankroll * f * fraction * 100) / 100;
+}
+
+function buildOddsForm(){
+  const fields = [
+    ["oddsHome","Home Win (1)"], ["oddsDraw","Draw (X)"], ["oddsAway","Away Win (2)"],
+    ["oddsOver25","Over 2.5"], ["oddsUnder25","Under 2.5"],
+    ["oddsBttsYes","BTTS Yes"], ["oddsBttsNo","BTTS No"],
+  ];
+  const form = $("oddsForm");
+  form.innerHTML = fields.map(([id,label])=>`
+    <label>
+      <span class="field-label">${label}</span>
+      <input type="number" id="${id}" min="0" step="0.01" value="0">
+    </label>
+  `).join("") + `
+    <label>
+      <span class="field-label">Bankroll</span>
+      <input type="number" id="bankroll" min="1" step="10" value="100">
+    </label>
+  `;
+}
+
+function computeValueBets(flatProbs){
+  const bankroll = parseFloat($("bankroll").value) || 100;
+  const entries = [
+    ["oddsHome","Home Win (1)"], ["oddsDraw","Draw (X)"], ["oddsAway","Away Win (2)"],
+    ["oddsOver25","Over 2.5"], ["oddsUnder25","Under 2.5"],
+    ["oddsBttsYes","BTTS Yes"], ["oddsBttsNo","BTTS No"],
+  ];
+  const rows = [];
+  entries.forEach(([id,label])=>{
+    const odds = parseFloat($(id).value);
+    if(!odds || odds<=1) return;
+    const prob = flatProbs[label];
+    if(prob===undefined) return;
+    const marketImplied = 1/odds;
+    const edge = (prob - marketImplied) * 100;
+    const ev = prob*odds - 1;
+    const stake = kellyStake(prob, odds, bankroll);
+    rows.push({label, prob, odds, marketImplied, edge, ev, stake});
+  });
+  rows.sort((a,b)=>b.ev-a.ev);
+
+  const tbl = $("tblValue");
+  if(rows.length===0){
+    tbl.innerHTML = "";
+    return;
+  }
+  let html = `<tr><th>Selection</th><th>Model</th><th>Odds</th><th>Market implied</th><th>Edge</th><th>EV/unit</th><th>Stake (¼ Kelly)</th></tr>`;
+  rows.forEach(r=>{
+    const positive = r.ev > 0;
+    html += `<tr class="value-row ${positive?'positive':''}">
+      <td>${r.label}</td>
+      <td class="num">${fmtPct(r.prob)}</td>
+      <td class="num">${r.odds.toFixed(2)}</td>
+      <td class="num">${fmtPct(r.marketImplied)}</td>
+      <td class="num edge">${r.edge>=0?'+':''}${r.edge.toFixed(2)}pp</td>
+      <td class="num">${r.ev>=0?'+':''}${r.ev.toFixed(3)}</td>
+      <td class="num">${r.stake}</td>
+    </tr>`;
+  });
+  tbl.innerHTML = html;
+}
+
+// ---------------------------------------------------------------------
+// App flow
+// ---------------------------------------------------------------------
+
+function populateLeagues(){
+  const sel = $("leagueSelect");
+  const leagues = Object.keys(MODELS).sort();
+  sel.innerHTML = leagues.map(l=>`<option value="${l}">${l}</option>`).join("");
+  populateTeams();
+}
+
+function populateTeams(){
+  const league = $("leagueSelect").value;
+  const teams = [...MODELS[league].teams].sort();
+  $("homeSelect").innerHTML = teams.map(t=>`<option value="${t}">${t}</option>`).join("");
+  $("awaySelect").innerHTML = teams.map(t=>`<option value="${t}">${t}</option>`).join("");
+  if(teams.length>1) $("awaySelect").selectedIndex = 1;
+}
+
+function runPrediction(){
+  const league = $("leagueSelect").value;
+  const home = $("homeSelect").value;
+  const away = $("awaySelect").value;
+  if(home===away){
+    $("status").textContent = "Home and away must be different teams.";
+    return;
+  }
+  $("status").textContent = "";
+
+  const model = MODELS[league];
+  const {matrix, lamH, lamA, n} = scoreMatrix(model, home, away);
+  const m = computeMarkets(matrix, n);
+
+  $("homeLabel").textContent = home;
+  $("awayLabel").textContent = away;
+  $("homeXg").textContent = lamH.toFixed(2);
+  $("awayXg").textContent = lamA.toFixed(2);
+
+  renderTable($("tbl1x2"), [
+    [`Home Win (1)`, m.pHome], [`Draw (X)`, m.pDraw], [`Away Win (2)`, m.pAway],
+  ]);
+  renderTable($("tblDC"), [
+    [`1X`, m.pHome+m.pDraw], [`12`, m.pHome+m.pAway], [`X2`, m.pDraw+m.pAway],
+  ]);
+  renderTable($("tblBTTS"), [
+    [`BTTS Yes`, m.pBtts], [`BTTS No`, 1-m.pBtts],
+  ]);
+  const ouRows = [];
+  [0.5,1.5,2.5,3.5,4.5].forEach(line=>{
+    ouRows.push([`Over ${line}`, m.ou[line].over]);
+    ouRows.push([`Under ${line}`, m.ou[line].under]);
+  });
+  renderTable($("tblOU"), ouRows);
+  const ttRows = [];
+  [0.5,1.5,2.5].forEach(line=>{
+    ttRows.push([`Home Over ${line}`, m.tt[line].home]);
+    ttRows.push([`Away Over ${line}`, m.tt[line].away]);
+  });
+  renderTable($("tblTotals"), ttRows);
+
+  renderCorrectScoreGrid(matrix, n);
+
+  const flatProbs = {
+    "Home Win (1)": m.pHome, "Draw (X)": m.pDraw, "Away Win (2)": m.pAway,
+    "Over 2.5": m.ou[2.5].over, "Under 2.5": m.ou[2.5].under,
+    "BTTS Yes": m.pBtts, "BTTS No": 1-m.pBtts,
+  };
+  computeValueBets(flatProbs);
+  $("oddsForm").dataset.ready = "1";
+  window._flatProbs = flatProbs; // for re-computation on odds input change
+
+  $("results").style.display = "block";
+  $("emptyState").style.display = "none";
+}
+
+async function init(){
+  buildOddsForm();
+  ["oddsHome","oddsDraw","oddsAway","oddsOver25","oddsUnder25","oddsBttsYes","oddsBttsNo","bankroll"].forEach(id=>{
+    $(id).addEventListener("input", ()=>{ if(window._flatProbs) computeValueBets(window._flatProbs); });
+  });
+
+  try{
+    const resp = await fetch(MODELS_URL, {cache:"no-store"});
+    if(!resp.ok) throw new Error("HTTP "+resp.status);
+    MODELS = await resp.json();
+  }catch(e){
+    $("dataMeta").textContent = "could not load models.json";
+    $("status").textContent = "models.json not found next to this page — make sure both files are in the same folder/repo.";
+    return;
+  }
+
+  const leagueCount = Object.keys(MODELS).length;
+  let latest = null;
+  Object.values(MODELS).forEach(m=>{ if(m.last_updated && (!latest || m.last_updated>latest)) latest=m.last_updated; });
+  $("dataMeta").textContent = `${leagueCount} league${leagueCount!==1?'s':''} · updated ${latest||'—'}`;
+
+  populateLeagues();
+  $("leagueSelect").addEventListener("change", populateTeams);
+  $("goBtn").addEventListener("click", runPrediction);
+}
+
+init();
+</script>
+</body>
+</html>
