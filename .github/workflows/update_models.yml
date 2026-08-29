@@ -6,6 +6,9 @@ on:
     - cron: '0 6 * * 1'
   workflow_dispatch: {}   # lets you also trigger it manually from the Actions tab if you ever want to
 
+permissions:
+  contents: write   # required so the workflow can commit the refreshed models.json back to the repo
+
 jobs:
   refresh:
     runs-on: ubuntu-latest
@@ -24,10 +27,13 @@ jobs:
       - name: Fetch real data and retrain all leagues
         run: python train_and_export.py
 
-      - name: Commit updated models.json (only if it actually changed)
+      - name: Run calibration backtest
+        run: python backtest.py
+
+      - name: Commit updated models.json and backtest.json (only if changed)
         run: |
           git config user.name "football-predictor-bot"
           git config user.email "actions@github.com"
-          git add models.json
-          git diff --staged --quiet || git commit -m "Auto-refresh models.json ($(date -u +%Y-%m-%d))"
+          git add models.json backtest.json
+          git diff --staged --quiet || git commit -m "Auto-refresh models + backtest ($(date -u +%Y-%m-%d))"
           git push
