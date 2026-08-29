@@ -175,9 +175,10 @@ def backtest_league(league_name, matches):
 
 
 if __name__ == "__main__":
-    # Reuses the same fetch functions as train_and_export.py so this can run
-    # standalone against live data, or be imported and called with data
-    # already fetched in the same process (see run_backtest_all()).
+    # Standalone mode (only useful if you want to run just the backtest without
+    # retraining) — fetches fresh, since it has no in-memory data to reuse.
+    # Normal usage is via train_and_export.py, which calls the functions above
+    # directly on data it already fetched, avoiding duplicate downloads.
     from train_and_export import FOOTBALL_DATA_CODES, fetch_football_data_csv, SEASONS
 
     results = {}

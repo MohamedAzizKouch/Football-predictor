@@ -156,7 +156,10 @@ def fetch_portugal():
 # ---------------------------------------------------------------------------
 
 def main():
+    from backtest import walk_forward_backtest, compute_metrics  # local import: reuses fit_dixon_coles from this module
+
     export = {}
+    backtest_results = {}
 
     for league_name, code in FOOTBALL_DATA_CODES.items():
         print(f"Fetching {league_name}...")
@@ -166,11 +169,24 @@ def main():
         if len(combined) < 20:
             print(f"  Skipping {league_name} — only {len(combined)} matches fetched.")
             continue
+
         model = fit_dixon_coles(combined, half_life_days=200)
         model["n_matches"] = len(combined)
         model["last_updated"] = str(pd.Timestamp.utcnow().date())
         export[league_name] = model
-        print(f"  {league_name}: {len(combined)} matches, {len(model['teams'])} teams — done.")
+        print(f"  {league_name}: {len(combined)} matches, {len(model['teams'])} teams — trained.")
+
+        # Backtest reuses this same `combined` DataFrame already in memory —
+        # no second fetch, no duplicate network calls to football-data.co.uk.
+        predictions = walk_forward_backtest(combined)
+        if predictions:
+            metrics = compute_metrics(predictions)
+            if metrics:
+                backtest_results[league_name] = metrics
+                print(f"  {league_name} backtest: Brier={metrics['brier_score']}  "
+                      f"LogLoss={metrics['log_loss']}  n={metrics['n_predictions']}")
+        else:
+            print(f"  {league_name}: not enough history to backtest yet.")
 
     print("Fetching Liga Portugal...")
     pt = fetch_portugal()
@@ -180,15 +196,24 @@ def main():
         model["last_updated"] = str(pd.Timestamp.utcnow().date())
         export["Liga Portugal"] = model
         print(f"  Liga Portugal: {len(pt)} matches — done.")
+
+        predictions = walk_forward_backtest(pt)
+        if predictions:
+            metrics = compute_metrics(predictions)
+            if metrics:
+                backtest_results["Liga Portugal"] = metrics
     else:
         print("  Liga Portugal: not enough data, skipped.")
 
     with open("models.json", "w") as f:
         json.dump(export, f, indent=2)
+    with open("backtest.json", "w") as f:
+        json.dump(backtest_results, f, indent=2)
 
     print(f"\nWrote models.json with {len(export)} leagues:")
     for name, m in export.items():
         print(f"  {name}: {len(m['teams'])} teams, {m['n_matches']} matches, updated {m['last_updated']}")
+    print(f"Wrote backtest.json with {len(backtest_results)} leagues.")
 
 
 if __name__ == "__main__":
