@@ -1,0 +1,37 @@
+name: Daily injury check
+
+on:
+  schedule:
+    - cron: '0 5 * * *'   # every day at 05:00 UTC — cycles 2 leagues/day, see injuries.py
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  check-injuries:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run injury check
+        env:
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+        run: python injuries.py
+
+      - name: Commit updated injuries.json (only if it changed)
+        run: |
+          git config user.name "football-predictor-bot"
+          git config user.email "actions@github.com"
+          git add injuries.json
+          git diff --staged --quiet || git commit -m "Auto-refresh injuries.json ($(date -u +%Y-%m-%d))"
+          git push
