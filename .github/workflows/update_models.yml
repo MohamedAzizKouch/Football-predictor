@@ -24,11 +24,8 @@ jobs:
       - name: Install dependencies
         run: pip install pandas numpy scipy requests
 
-      - name: Fetch real data and retrain all leagues
+      - name: Fetch real data, train all leagues, and run calibration backtest
         run: python train_and_export.py
-
-      - name: Run calibration backtest
-        run: python backtest.py
 
       - name: Commit updated models.json and backtest.json (only if changed)
         run: |
