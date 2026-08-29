@@ -202,6 +202,25 @@
   }
   table.market tr:last-child td{border-bottom:none;}
 
+  /* Model performance */
+  .perf-summary{display:flex;gap:28px;flex-wrap:wrap;margin-bottom:18px;}
+  .perf-stat{min-width:120px;}
+  .perf-stat .val{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:var(--pitch-deep);}
+  .perf-stat .lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.55;}
+  .perf-verdict{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.04em;
+    padding:3px 10px;display:inline-block;margin-top:4px;
+  }
+  .perf-verdict.good{background:rgba(46,107,68,0.15);color:var(--pitch-deep);}
+  .perf-verdict.bad{background:rgba(179,68,30,0.15);color:var(--flag);}
+  .calib-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;}
+  .calib-bar-row .bucket-label{width:70px;opacity:0.6;flex-shrink:0;}
+  .calib-bar-track{flex:1;height:16px;background:var(--line);position:relative;}
+  .calib-bar-fill{position:absolute;top:0;bottom:0;left:0;background:rgba(46,107,68,0.35);}
+  .calib-bar-marker{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--flag);}
+  .calib-bar-n{width:56px;text-align:right;opacity:0.5;flex-shrink:0;}
+  .perf-note{font-family:'Inter',sans-serif;font-size:13px;opacity:0.7;margin-top:12px;max-width:640px;}
+
   /* Correct score heat grid — the signature element */
   .csgrid{
     display:inline-grid;
@@ -261,6 +280,32 @@
     text-align:center;
   }
 
+  /* Injury note */
+  .injury-box{
+    border:1.5px dashed var(--line-strong);
+    padding:16px 20px;
+    margin:0 0 8px;
+    font-size:13px;
+  }
+  .injury-box .heur-tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--flag);
+    border:1px solid var(--flag);
+    padding:1px 6px;
+    margin-left:6px;
+  }
+  .injury-box ul{margin:8px 0 0;padding-left:18px;}
+  .injury-box li{margin-bottom:2px;}
+  .injury-adjusted-xg{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    opacity:0.8;
+    margin-top:8px;
+  }
+
   @media (prefers-reduced-motion:no-preference){
     .fade-in{animation:fadeIn 0.35s ease both;}
     @keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
@@ -314,6 +359,8 @@
       <div class="team" id="awayLabel">—</div>
     </div>
 
+    <div id="injuryNote"></div>
+
     <h2 class="section">Match result</h2>
     <div class="grid2">
       <div>
@@ -340,6 +387,9 @@
       <div class="csgrid" id="csGrid"></div>
     </div>
 
+    <h2 class="section">Model performance <span id="perfLeagueLabel"></span></h2>
+    <div id="perfSection"></div>
+
     <h2 class="section">Value vs bookmaker odds <span>optional — leave at 0 to skip a market</span></h2>
     <div class="odds-form" id="oddsForm"></div>
     <table class="market" id="tblValue" style="margin-top:20px;"></table>
@@ -356,7 +406,11 @@
 
 <script>
 const MODELS_URL = "models.json";
+const BACKTEST_URL = "backtest.json";
+const INJURIES_URL = "injuries.json";
 let MODELS = null;
+let BACKTEST = null;
+let INJURIES = null;
 
 const $ = (id) => document.getElementById(id);
 
@@ -480,6 +534,111 @@ function renderCorrectScoreGrid(matrix, n, maxShow=6){
   grid.innerHTML = html;
 }
 
+function renderPerformance(league){
+  const section = $("perfSection");
+  $("perfLeagueLabel").textContent = `— ${league}`;
+  const bt = BACKTEST ? BACKTEST[league] : null;
+
+  if(!bt){
+    section.innerHTML = `<p class="perf-note">No backtest run yet for ${league} — this section fills in once the automation has run at least once for this league.</p>`;
+    return;
+  }
+
+  const beats = bt.beats_naive_baseline;
+  let html = `
+    <div class="perf-summary">
+      <div class="perf-stat">
+        <div class="val">${bt.brier_score}</div>
+        <div class="lbl">Brier score</div>
+      </div>
+      <div class="perf-stat">
+        <div class="val">${bt.log_loss}</div>
+        <div class="lbl">Log-loss</div>
+      </div>
+      <div class="perf-stat">
+        <div class="val">${bt.n_predictions}</div>
+        <div class="lbl">Matches backtested</div>
+      </div>
+      <div class="perf-stat">
+        <div class="lbl" style="margin-bottom:4px;">vs. naive baseline</div>
+        <span class="perf-verdict ${beats?'good':'bad'}">
+          ${beats ? 'BEATS baseline' : 'does not beat baseline'}
+        </span>
+      </div>
+    </div>
+    <p class="perf-note">
+      Walk-forward backtest: the model was refit on only past matches and scored on
+      each next match as it happened, so nothing here uses future information.
+      "Naive baseline" is a model that just guesses this league's overall historical
+      home/draw/away rate for every match, ignoring which teams are playing — a real
+      model needs to beat this to be worth anything.
+    </p>
+    <p class="kicker" style="margin-top:20px;">Home-win calibration — does a predicted X% actually happen X% of the time?</p>
+  `;
+
+  bt.home_win_calibration.forEach(c=>{
+    const barWidth = Math.min(100, c.actual_freq);
+    const markerPos = Math.min(100, c.predicted_avg);
+    html += `
+      <div class="calib-bar-row">
+        <div class="bucket-label">${c.bucket}</div>
+        <div class="calib-bar-track">
+          <div class="calib-bar-fill" style="width:${barWidth}%;"></div>
+          <div class="calib-bar-marker" style="left:${markerPos}%;" title="model predicted ${c.predicted_avg}%"></div>
+        </div>
+        <div class="calib-bar-n">n=${c.n}</div>
+      </div>
+    `;
+  });
+  html += `<p class="perf-note">Green bar = how often it actually happened. Red line = what the model predicted on average.
+    They should roughly line up. Buckets with small n (shown on the right) are noisier — treat those with more caution.</p>`;
+
+  section.innerHTML = html;
+}
+
+function renderInjuryNote(league, home, away, lamH, lamA){
+  const box = $("injuryNote");
+  const leagueData = INJURIES ? INJURIES[league] : null;
+  const homeData = leagueData ? leagueData[home] : null;
+  const awayData = leagueData ? leagueData[away] : null;
+
+  if(!homeData && !awayData){
+    box.innerHTML = "";
+    return;
+  }
+
+  function teamBlock(teamName, data){
+    if(!data || !data.players_out || data.players_out.length===0) return "";
+    const items = data.players_out.map(p=>`<li>${p.name} <span style="opacity:0.55;">(${p.reason||'unavailable'})</span></li>`).join("");
+    return `<div><strong>${teamName}</strong> — attack ×${data.attack_multiplier}, concede-risk ×${data.defense_multiplier}
+      <ul>${items}</ul></div>`;
+  }
+
+  const homeMult = homeData ? homeData.attack_multiplier : 1;
+  const awayDefMult = awayData ? awayData.defense_multiplier : 1;
+  const awayMult = awayData ? awayData.attack_multiplier : 1;
+  const homeDefMult = homeData ? homeData.defense_multiplier : 1;
+  const adjLamH = lamH * homeMult * awayDefMult;
+  const adjLamA = lamA * awayMult * homeDefMult;
+
+  const lastChecked = (homeData && homeData.last_checked) || (awayData && awayData.last_checked) || "unknown";
+
+  box.innerHTML = `
+    <div class="injury-box fade-in">
+      <span class="field-label" style="display:inline;">Squad availability<span class="heur-tag">heuristic — not calibrated</span></span>
+      <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        ${teamBlock(home, homeData)}
+        ${teamBlock(away, awayData)}
+      </div>
+      <div class="injury-adjusted-xg">
+        Heuristic-adjusted xG: ${home} ${adjLamH.toFixed(2)} — ${away} ${adjLamA.toFixed(2)}
+        (checked ${lastChecked}). This adjustment is a simple rule of thumb, not a statistically
+        fitted number — treat the base xG above as the calibrated figure and this as directional context.
+      </div>
+    </div>
+  `;
+}
+
 function kellyStake(prob, odds, bankroll, fraction=0.25){
   const b = odds - 1;
   if(b<=0) return 0;
@@ -587,6 +746,8 @@ function runPrediction(){
   $("homeXg").textContent = lamH.toFixed(2);
   $("awayXg").textContent = lamA.toFixed(2);
 
+  renderInjuryNote(league, home, away, lamH, lamA);
+
   renderTable($("tbl1x2"), [
     [`Home Win (1)`, m.pHome], [`Draw (X)`, m.pDraw], [`Away Win (2)`, m.pAway],
   ]);
@@ -610,6 +771,7 @@ function runPrediction(){
   renderTable($("tblTotals"), ttRows);
 
   renderCorrectScoreGrid(matrix, n);
+  renderPerformance(league);
 
   const flatProbs = {
     "Home Win (1)": m.pHome, "Draw (X)": m.pDraw, "Away Win (2)": m.pAway,
@@ -638,6 +800,20 @@ async function init(){
     $("dataMeta").textContent = "could not load models.json";
     $("status").textContent = "models.json not found next to this page — make sure both files are in the same folder/repo.";
     return;
+  }
+
+  try{
+    const btResp = await fetch(BACKTEST_URL, {cache:"no-store"});
+    if(btResp.ok) BACKTEST = await btResp.json();
+  }catch(e){
+    BACKTEST = null;
+  }
+
+  try{
+    const injResp = await fetch(INJURIES_URL, {cache:"no-store"});
+    if(injResp.ok) INJURIES = await injResp.json();
+  }catch(e){
+    INJURIES = null; // fine — feature just stays off
   }
 
   const leagueCount = Object.keys(MODELS).length;

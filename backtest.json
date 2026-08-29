@@ -1,0 +1,66 @@
+{
+  "Premier League": {
+    "n_predictions": 148,
+    "brier_score": 0.6069,
+    "log_loss": 1.0205,
+    "naive_baseline_brier": 0.6413,
+    "naive_baseline_log_loss": 1.0618,
+    "beats_naive_baseline": true,
+    "home_win_calibration": [
+      {
+        "bucket": "0-10%",
+        "predicted_avg": 8.0,
+        "actual_freq": 0.0,
+        "n": 6
+      },
+      {
+        "bucket": "10-20%",
+        "predicted_avg": 14.0,
+        "actual_freq": 40.0,
+        "n": 15
+      },
+      {
+        "bucket": "20-30%",
+        "predicted_avg": 25.2,
+        "actual_freq": 30.4,
+        "n": 23
+      },
+      {
+        "bucket": "30-40%",
+        "predicted_avg": 35.1,
+        "actual_freq": 31.2,
+        "n": 16
+      },
+      {
+        "bucket": "40-50%",
+        "predicted_avg": 43.9,
+        "actual_freq": 46.2,
+        "n": 26
+      },
+      {
+        "bucket": "50-60%",
+        "predicted_avg": 55.3,
+        "actual_freq": 66.7,
+        "n": 24
+      },
+      {
+        "bucket": "60-70%",
+        "predicted_avg": 65.5,
+        "actual_freq": 55.6,
+        "n": 18
+      },
+      {
+        "bucket": "70-80%",
+        "predicted_avg": 73.2,
+        "actual_freq": 44.4,
+        "n": 9
+      },
+      {
+        "bucket": "80-90%",
+        "predicted_avg": 85.2,
+        "actual_freq": 57.1,
+        "n": 7
+      }
+    ]
+  }
+}
