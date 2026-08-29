@@ -1,0 +1,33 @@
+name: Refresh football prediction models
+
+on:
+  schedule:
+    # Runs every Monday at 06:00 UTC. Cron uses UTC always.
+    - cron: '0 6 * * 1'
+  workflow_dispatch: {}   # lets you also trigger it manually from the Actions tab if you ever want to
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pandas numpy scipy requests
+
+      - name: Fetch real data and retrain all leagues
+        run: python train_and_export.py
+
+      - name: Commit updated models.json (only if it actually changed)
+        run: |
+          git config user.name "football-predictor-bot"
+          git config user.email "actions@github.com"
+          git add models.json
+          git diff --staged --quiet || git commit -m "Auto-refresh models.json ($(date -u +%Y-%m-%d))"
+          git push
