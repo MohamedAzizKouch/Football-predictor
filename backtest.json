@@ -66,7 +66,7 @@
   "Championship": {
     "n_predictions": 1054,
     "brier_score": 0.6502,
-    "log_loss": 1.0759,
+    "log_loss": 1.0758,
     "naive_baseline_brier": 0.6514,
     "naive_baseline_log_loss": 1.0766,
     "beats_naive_baseline": true,
@@ -333,7 +333,7 @@
   },
   "Serie A": {
     "n_predictions": 704,
-    "brier_score": 0.5914,
+    "brier_score": 0.5913,
     "log_loss": 0.9911,
     "naive_baseline_brier": 0.6577,
     "naive_baseline_log_loss": 1.0849,
