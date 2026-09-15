@@ -32,6 +32,7 @@ single-league models, which are fitted directly on the relevant data.
 """
 
 from io import StringIO
+import time
 
 import numpy as np
 import pandas as pd
@@ -61,7 +62,7 @@ def fetch_clubelo_ratings(date: str = None) -> dict:
         return {}
 
 
-def fetch_clubelo_ratings_grouped(date: str = None) -> dict:
+def fetch_clubelo_ratings_grouped(date: str = None, max_retries: int = 3) -> dict:
     """
     Same data as fetch_clubelo_ratings, but grouped by country for a
     two-step (country -> club) picker in the UI, since ClubElo tracks
@@ -71,18 +72,25 @@ def fetch_clubelo_ratings_grouped(date: str = None) -> dict:
     if date is None:
         date = str(pd.Timestamp.utcnow().date())
     url = f"http://api.clubelo.com/{date}"
-    try:
-        resp = requests.get(url, timeout=20)
-        resp.raise_for_status()
-        df = pd.read_csv(StringIO(resp.text))
-        grouped = {}
-        for _, row in df.iterrows():
-            country = row["Country"]
-            grouped.setdefault(country, {})[row["Club"]] = float(row["Elo"])
-        return grouped
-    except Exception as e:
-        print(f"  ClubElo fetch failed for {date}: {e}")
-        return {}
+    headers = {"User-Agent": "Mozilla/5.0 (compatible; football-predictor-bot/1.0)"}
+    last_error = None
+    for attempt in range(max_retries):
+        try:
+            if attempt > 0:
+                time.sleep(5 * attempt)
+            resp = requests.get(url, timeout=20, headers=headers)
+            resp.raise_for_status()
+            df = pd.read_csv(StringIO(resp.text))
+            grouped = {}
+            for _, row in df.iterrows():
+                country = row["Country"]
+                grouped.setdefault(country, {})[row["Club"]] = float(row["Elo"])
+            return grouped
+        except Exception as e:
+            last_error = e
+            print(f"  ClubElo fetch attempt {attempt+1}/{max_retries} failed: {e}")
+    print(f"  ClubElo fetch failed after {max_retries} attempts: {last_error}")
+    return {}
 
 
 def elo_win_expectancy(elo_a: float, elo_b: float) -> float:
