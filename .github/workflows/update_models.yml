@@ -2,12 +2,11 @@ name: Refresh football prediction models
 
 on:
   schedule:
-    # Runs every Monday at 06:00 UTC. Cron uses UTC always.
     - cron: '0 6 * * 1'
-  workflow_dispatch: {}   # lets you also trigger it manually from the Actions tab if you ever want to
+  workflow_dispatch: {}
 
 permissions:
-  contents: write   # required so the workflow can commit the refreshed models.json back to the repo
+  contents: write
 
 jobs:
   refresh:
@@ -24,13 +23,13 @@ jobs:
       - name: Install dependencies
         run: pip install pandas numpy scipy requests
 
-      - name: Fetch real data, train all leagues, and run calibration backtest
+      - name: Fetch real data, train all leagues, run backtest, fetch ClubElo ratings
         run: python train_and_export.py
 
-      - name: Commit updated models.json and backtest.json (only if changed)
+      - name: Commit updated files (only if changed)
         run: |
           git config user.name "football-predictor-bot"
           git config user.email "actions@github.com"
-          git add models.json backtest.json
-          git diff --staged --quiet || git commit -m "Auto-refresh models + backtest ($(date -u +%Y-%m-%d))"
+          git add models.json backtest.json elo_ratings.json
+          git diff --staged --quiet || git commit -m "Auto-refresh models + backtest + ClubElo ($(date -u +%Y-%m-%d))"
           git push
