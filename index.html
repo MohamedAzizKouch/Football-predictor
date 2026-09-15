@@ -955,9 +955,12 @@ async function init(){
 
   try{
     const eloResp = await fetch(ELO_URL, {cache:"no-store"});
-    if(eloResp.ok) ELO_RATINGS = await eloResp.json();
+    if(eloResp.ok){
+      const parsed = await eloResp.json();
+      if(parsed && Object.keys(parsed).length >= 2) ELO_RATINGS = parsed;
+    }
   }catch(e){
-    ELO_RATINGS = null; // fine — European mode just shows a message and stays unusable until this exists
+    ELO_RATINGS = null;
   }
 
   const leagueCount = Object.keys(MODELS).length;
@@ -965,13 +968,20 @@ async function init(){
   Object.values(MODELS).forEach(m=>{ if(m.last_updated && (!latest || m.last_updated>latest)) latest=m.last_updated; });
   $("dataMeta").textContent = `${leagueCount} league${leagueCount!==1?'s':''} · updated ${latest||'—'}`;
 
+  // Only offer European mode once real cross-league data actually exists —
+  // no dead-end empty state, no visible feature that doesn't work yet.
+  const europeanOption = $("modeSelect").querySelector('option[value="european"]');
+  if(!ELO_RATINGS && europeanOption){
+    europeanOption.remove();
+  }
+
   populateLeagues();
   $("leagueSelect").addEventListener("change", populateTeams);
   $("goBtn").addEventListener("click", runPrediction);
   $("modeSelect").addEventListener("change", (e) => setMode(e.target.value));
   $("homeCountrySelect").addEventListener("change", () => populateEuroTeamDropdown("homeCountrySelect","euroHomeSelect"));
   $("awayCountrySelect").addEventListener("change", () => populateEuroTeamDropdown("awayCountrySelect","euroAwaySelect"));
-  populateEuropeanControls();
+  if(ELO_RATINGS) populateEuropeanControls();
   setMode("domestic");
 }
 
