@@ -1,10 +1,10 @@
 {
   "Premier League": {
-    "n_predictions": 722,
-    "brier_score": 0.6148,
-    "log_loss": 1.032,
-    "naive_baseline_brier": 0.654,
-    "naive_baseline_log_loss": 1.0797,
+    "n_predictions": 730,
+    "brier_score": 0.6161,
+    "log_loss": 1.0337,
+    "naive_baseline_brier": 0.6547,
+    "naive_baseline_log_loss": 1.0808,
     "beats_naive_baseline": true,
     "home_win_calibration": [
       {
@@ -16,44 +16,44 @@
       {
         "bucket": "10-20%",
         "predicted_avg": 15.9,
-        "actual_freq": 20.3,
-        "n": 74
+        "actual_freq": 19.7,
+        "n": 76
       },
       {
         "bucket": "20-30%",
-        "predicted_avg": 25.3,
-        "actual_freq": 26.7,
-        "n": 116
+        "predicted_avg": 25.4,
+        "actual_freq": 26.5,
+        "n": 117
       },
       {
         "bucket": "30-40%",
-        "predicted_avg": 35.4,
-        "actual_freq": 41.6,
-        "n": 154
+        "predicted_avg": 35.5,
+        "actual_freq": 41.9,
+        "n": 155
       },
       {
         "bucket": "40-50%",
         "predicted_avg": 44.7,
-        "actual_freq": 44.6,
-        "n": 139
+        "actual_freq": 44.7,
+        "n": 141
       },
       {
         "bucket": "50-60%",
-        "predicted_avg": 54.3,
-        "actual_freq": 56.7,
-        "n": 104
+        "predicted_avg": 54.4,
+        "actual_freq": 55.7,
+        "n": 106
       },
       {
         "bucket": "60-70%",
         "predicted_avg": 64.8,
-        "actual_freq": 59.1,
-        "n": 66
+        "actual_freq": 58.5,
+        "n": 65
       },
       {
         "bucket": "70-80%",
-        "predicted_avg": 75.4,
-        "actual_freq": 57.1,
-        "n": 28
+        "predicted_avg": 75.1,
+        "actual_freq": 55.2,
+        "n": 29
       },
       {
         "bucket": "80-90%",
@@ -64,9 +64,9 @@
     ]
   },
   "Championship": {
-    "n_predictions": 1098,
-    "brier_score": 0.6511,
-    "log_loss": 1.0781,
+    "n_predictions": 1112,
+    "brier_score": 0.6501,
+    "log_loss": 1.0758,
     "naive_baseline_brier": 0.6514,
     "naive_baseline_log_loss": 1.0766,
     "beats_naive_baseline": true,
@@ -74,108 +74,108 @@
       {
         "bucket": "0-10%",
         "predicted_avg": 7.4,
-        "actual_freq": 14.3,
-        "n": 14
+        "actual_freq": 20.0,
+        "n": 15
       },
       {
         "bucket": "10-20%",
-        "predicted_avg": 15.7,
-        "actual_freq": 28.8,
-        "n": 52
+        "predicted_avg": 15.6,
+        "actual_freq": 27.5,
+        "n": 51
       },
       {
         "bucket": "20-30%",
-        "predicted_avg": 26.0,
-        "actual_freq": 34.5,
-        "n": 119
+        "predicted_avg": 25.9,
+        "actual_freq": 35.0,
+        "n": 120
       },
       {
         "bucket": "30-40%",
         "predicted_avg": 35.6,
-        "actual_freq": 38.6,
-        "n": 254
+        "actual_freq": 38.5,
+        "n": 260
       },
       {
         "bucket": "40-50%",
         "predicted_avg": 44.9,
-        "actual_freq": 45.5,
-        "n": 310
+        "actual_freq": 45.0,
+        "n": 309
       },
       {
         "bucket": "50-60%",
-        "predicted_avg": 54.8,
-        "actual_freq": 40.8,
-        "n": 184
+        "predicted_avg": 54.7,
+        "actual_freq": 41.5,
+        "n": 188
       },
       {
         "bucket": "60-70%",
-        "predicted_avg": 64.2,
-        "actual_freq": 59.2,
-        "n": 98
+        "predicted_avg": 64.3,
+        "actual_freq": 59.6,
+        "n": 104
       },
       {
         "bucket": "70-80%",
-        "predicted_avg": 74.0,
-        "actual_freq": 69.6,
-        "n": 46
+        "predicted_avg": 73.8,
+        "actual_freq": 68.2,
+        "n": 44
       },
       {
         "bucket": "80-90%",
-        "predicted_avg": 85.0,
-        "actual_freq": 66.7,
-        "n": 18
+        "predicted_avg": 83.9,
+        "actual_freq": 64.7,
+        "n": 17
       }
     ]
   },
   "League One": {
-    "n_predictions": 1088,
-    "brier_score": 0.634,
-    "log_loss": 1.0585,
-    "naive_baseline_brier": 0.6471,
-    "naive_baseline_log_loss": 1.0699,
+    "n_predictions": 1098,
+    "brier_score": 0.6369,
+    "log_loss": 1.0623,
+    "naive_baseline_brier": 0.6474,
+    "naive_baseline_log_loss": 1.0704,
     "beats_naive_baseline": true,
     "home_win_calibration": [
       {
         "bucket": "0-10%",
-        "predicted_avg": 7.9,
+        "predicted_avg": 8.5,
         "actual_freq": 33.3,
         "n": 15
       },
       {
         "bucket": "10-20%",
-        "predicted_avg": 15.2,
-        "actual_freq": 26.0,
-        "n": 50
+        "predicted_avg": 15.3,
+        "actual_freq": 27.5,
+        "n": 51
       },
       {
         "bucket": "20-30%",
-        "predicted_avg": 25.7,
-        "actual_freq": 31.7,
-        "n": 164
+        "predicted_avg": 25.6,
+        "actual_freq": 31.8,
+        "n": 157
       },
       {
         "bucket": "30-40%",
-        "predicted_avg": 35.5,
-        "actual_freq": 35.4,
-        "n": 254
+        "predicted_avg": 35.3,
+        "actual_freq": 35.5,
+        "n": 259
       },
       {
         "bucket": "40-50%",
-        "predicted_avg": 45.1,
-        "actual_freq": 48.7,
-        "n": 265
+        "predicted_avg": 45.0,
+        "actual_freq": 48.5,
+        "n": 268
       },
       {
         "bucket": "50-60%",
-        "predicted_avg": 54.8,
-        "actual_freq": 49.0,
-        "n": 194
+        "predicted_avg": 54.7,
+        "actual_freq": 49.2,
+        "n": 195
       },
       {
         "bucket": "60-70%",
         "predicted_avg": 64.3,
-        "actual_freq": 68.6,
-        "n": 102
+        "actual_freq": 65.7,
+        "n": 108
       },
       {
         "bucket": "70-80%",
@@ -185,71 +185,71 @@
       },
       {
         "bucket": "80-90%",
-        "predicted_avg": 83.5,
-        "actual_freq": 70.0,
-        "n": 10
+        "predicted_avg": 83.4,
+        "actual_freq": 63.6,
+        "n": 11
       }
     ]
   },
   "Ligue 1": {
-    "n_predictions": 569,
-    "brier_score": 0.6051,
-    "log_loss": 1.0261,
-    "naive_baseline_brier": 0.6408,
-    "naive_baseline_log_loss": 1.0597,
+    "n_predictions": 578,
+    "brier_score": 0.6062,
+    "log_loss": 1.0189,
+    "naive_baseline_brier": 0.643,
+    "naive_baseline_log_loss": 1.0632,
     "beats_naive_baseline": true,
     "home_win_calibration": [
       {
         "bucket": "0-10%",
-        "predicted_avg": 6.4,
-        "actual_freq": 15.0,
-        "n": 20
+        "predicted_avg": 7.0,
+        "actual_freq": 11.1,
+        "n": 18
       },
       {
         "bucket": "10-20%",
         "predicted_avg": 15.4,
-        "actual_freq": 31.9,
-        "n": 47
+        "actual_freq": 31.2,
+        "n": 48
       },
       {
         "bucket": "20-30%",
-        "predicted_avg": 25.4,
-        "actual_freq": 24.7,
-        "n": 93
+        "predicted_avg": 25.5,
+        "actual_freq": 24.0,
+        "n": 96
       },
       {
         "bucket": "30-40%",
-        "predicted_avg": 35.3,
+        "predicted_avg": 35.4,
         "actual_freq": 37.6,
         "n": 93
       },
       {
         "bucket": "40-50%",
-        "predicted_avg": 45.3,
-        "actual_freq": 50.5,
-        "n": 93
+        "predicted_avg": 45.1,
+        "actual_freq": 51.0,
+        "n": 98
       },
       {
         "bucket": "50-60%",
         "predicted_avg": 54.7,
-        "actual_freq": 56.2,
-        "n": 80
+        "actual_freq": 55.6,
+        "n": 81
       },
       {
         "bucket": "60-70%",
-        "predicted_avg": 64.8,
-        "actual_freq": 50.0,
-        "n": 74
+        "predicted_avg": 65.0,
+        "actual_freq": 49.3,
+        "n": 75
       },
       {
         "bucket": "70-80%",
-        "predicted_avg": 73.8,
+        "predicted_avg": 74.0,
         "actual_freq": 70.0,
         "n": 40
       },
       {
         "bucket": "80-90%",
-        "predicted_avg": 84.1,
+        "predicted_avg": 84.2,
         "actual_freq": 82.6,
         "n": 23
       },
@@ -262,130 +262,130 @@
     ]
   },
   "Bundesliga": {
-    "n_predictions": 558,
-    "brier_score": 0.6128,
-    "log_loss": 1.0315,
+    "n_predictions": 565,
+    "brier_score": 0.6135,
+    "log_loss": 1.0326,
     "naive_baseline_brier": 0.6528,
-    "naive_baseline_log_loss": 1.0775,
+    "naive_baseline_log_loss": 1.0776,
     "beats_naive_baseline": true,
     "home_win_calibration": [
       {
         "bucket": "0-10%",
         "predicted_avg": 5.5,
-        "actual_freq": 14.3,
-        "n": 28
+        "actual_freq": 14.8,
+        "n": 27
       },
       {
         "bucket": "10-20%",
-        "predicted_avg": 15.6,
-        "actual_freq": 23.5,
-        "n": 51
+        "predicted_avg": 15.7,
+        "actual_freq": 25.5,
+        "n": 55
       },
       {
         "bucket": "20-30%",
-        "predicted_avg": 25.4,
-        "actual_freq": 25.5,
-        "n": 106
+        "predicted_avg": 25.5,
+        "actual_freq": 23.8,
+        "n": 105
       },
       {
         "bucket": "30-40%",
-        "predicted_avg": 34.9,
+        "predicted_avg": 35.1,
         "actual_freq": 32.7,
         "n": 101
       },
       {
         "bucket": "40-50%",
-        "predicted_avg": 44.8,
-        "actual_freq": 52.4,
-        "n": 84
+        "predicted_avg": 45.0,
+        "actual_freq": 52.3,
+        "n": 88
       },
       {
         "bucket": "50-60%",
-        "predicted_avg": 54.3,
-        "actual_freq": 48.7,
-        "n": 78
+        "predicted_avg": 54.7,
+        "actual_freq": 50.0,
+        "n": 80
       },
       {
         "bucket": "60-70%",
-        "predicted_avg": 64.6,
+        "predicted_avg": 64.7,
         "actual_freq": 62.7,
         "n": 59
       },
       {
         "bucket": "70-80%",
-        "predicted_avg": 74.6,
-        "actual_freq": 70.0,
-        "n": 30
+        "predicted_avg": 74.8,
+        "actual_freq": 69.0,
+        "n": 29
       },
       {
         "bucket": "80-90%",
-        "predicted_avg": 85.3,
+        "predicted_avg": 85.5,
         "actual_freq": 85.7,
         "n": 14
       },
       {
         "bucket": "90-100%",
-        "predicted_avg": 93.4,
+        "predicted_avg": 93.3,
         "actual_freq": 57.1,
         "n": 7
       }
     ]
   },
   "Serie A": {
-    "n_predictions": 724,
-    "brier_score": 0.5888,
-    "log_loss": 0.9951,
-    "naive_baseline_brier": 0.657,
-    "naive_baseline_log_loss": 1.0838,
+    "n_predictions": 734,
+    "brier_score": 0.5881,
+    "log_loss": 0.9943,
+    "naive_baseline_brier": 0.6567,
+    "naive_baseline_log_loss": 1.0834,
     "beats_naive_baseline": true,
     "home_win_calibration": [
       {
         "bucket": "0-10%",
         "predicted_avg": 7.2,
-        "actual_freq": 8.1,
-        "n": 37
+        "actual_freq": 8.3,
+        "n": 36
       },
       {
         "bucket": "10-20%",
         "predicted_avg": 15.6,
-        "actual_freq": 17.5,
-        "n": 126
+        "actual_freq": 17.2,
+        "n": 128
       },
       {
         "bucket": "20-30%",
-        "predicted_avg": 25.3,
-        "actual_freq": 28.7,
-        "n": 108
+        "predicted_avg": 25.2,
+        "actual_freq": 28.8,
+        "n": 111
       },
       {
         "bucket": "30-40%",
         "predicted_avg": 35.1,
-        "actual_freq": 31.4,
-        "n": 118
+        "actual_freq": 31.1,
+        "n": 119
       },
       {
         "bucket": "40-50%",
         "predicted_avg": 45.1,
-        "actual_freq": 52.7,
-        "n": 110
+        "actual_freq": 53.2,
+        "n": 111
       },
       {
         "bucket": "50-60%",
         "predicted_avg": 55.0,
         "actual_freq": 52.9,
-        "n": 102
+        "n": 104
       },
       {
         "bucket": "60-70%",
-        "predicted_avg": 64.1,
-        "actual_freq": 64.2,
-        "n": 67
+        "predicted_avg": 64.2,
+        "actual_freq": 64.7,
+        "n": 68
       },
       {
         "bucket": "70-80%",
-        "predicted_avg": 74.1,
-        "actual_freq": 66.7,
-        "n": 36
+        "predicted_avg": 74.0,
+        "actual_freq": 67.6,
+        "n": 37
       },
       {
         "bucket": "80-90%",
@@ -396,11 +396,11 @@
     ]
   },
   "La Liga": {
-    "n_predictions": 732,
-    "brier_score": 0.5975,
-    "log_loss": 1.0063,
-    "naive_baseline_brier": 0.639,
-    "naive_baseline_log_loss": 1.0589,
+    "n_predictions": 742,
+    "brier_score": 0.5977,
+    "log_loss": 1.006,
+    "naive_baseline_brier": 0.6399,
+    "naive_baseline_log_loss": 1.0601,
     "beats_naive_baseline": true,
     "home_win_calibration": [
       {
@@ -412,8 +412,8 @@
       {
         "bucket": "10-20%",
         "predicted_avg": 16.0,
-        "actual_freq": 23.6,
-        "n": 72
+        "actual_freq": 23.3,
+        "n": 73
       },
       {
         "bucket": "20-30%",
@@ -424,20 +424,20 @@
       {
         "bucket": "30-40%",
         "predicted_avg": 35.4,
-        "actual_freq": 39.0,
-        "n": 154
+        "actual_freq": 38.1,
+        "n": 155
       },
       {
         "bucket": "40-50%",
-        "predicted_avg": 44.5,
-        "actual_freq": 41.4,
-        "n": 157
+        "predicted_avg": 44.6,
+        "actual_freq": 42.2,
+        "n": 161
       },
       {
         "bucket": "50-60%",
         "predicted_avg": 54.8,
-        "actual_freq": 44.8,
-        "n": 96
+        "actual_freq": 43.9,
+        "n": 98
       },
       {
         "bucket": "60-70%",
@@ -447,9 +447,9 @@
       },
       {
         "bucket": "70-80%",
-        "predicted_avg": 74.9,
-        "actual_freq": 74.1,
-        "n": 54
+        "predicted_avg": 74.7,
+        "actual_freq": 73.2,
+        "n": 56
       },
       {
         "bucket": "80-90%",
@@ -466,11 +466,11 @@
     ]
   },
   "Eredivisie": {
-    "n_predictions": 586,
-    "brier_score": 0.6005,
-    "log_loss": 1.0119,
-    "naive_baseline_brier": 0.6491,
-    "naive_baseline_log_loss": 1.0731,
+    "n_predictions": 595,
+    "brier_score": 0.6012,
+    "log_loss": 1.0127,
+    "naive_baseline_brier": 0.6497,
+    "naive_baseline_log_loss": 1.0739,
     "beats_naive_baseline": true,
     "home_win_calibration": [
       {
@@ -481,57 +481,57 @@
       },
       {
         "bucket": "10-20%",
-        "predicted_avg": 16.1,
+        "predicted_avg": 15.8,
         "actual_freq": 18.9,
         "n": 37
       },
       {
         "bucket": "20-30%",
-        "predicted_avg": 25.1,
-        "actual_freq": 25.8,
-        "n": 89
+        "predicted_avg": 25.0,
+        "actual_freq": 25.3,
+        "n": 91
       },
       {
         "bucket": "30-40%",
         "predicted_avg": 35.4,
-        "actual_freq": 37.6,
+        "actual_freq": 38.6,
         "n": 101
       },
       {
         "bucket": "40-50%",
-        "predicted_avg": 44.8,
-        "actual_freq": 42.6,
-        "n": 94
+        "predicted_avg": 44.9,
+        "actual_freq": 40.8,
+        "n": 98
       },
       {
         "bucket": "50-60%",
-        "predicted_avg": 54.6,
-        "actual_freq": 41.0,
-        "n": 78
+        "predicted_avg": 54.8,
+        "actual_freq": 43.2,
+        "n": 81
       },
       {
         "bucket": "60-70%",
         "predicted_avg": 64.3,
-        "actual_freq": 54.5,
-        "n": 77
+        "actual_freq": 52.7,
+        "n": 74
       },
       {
         "bucket": "70-80%",
         "predicted_avg": 74.1,
-        "actual_freq": 71.4,
-        "n": 42
+        "actual_freq": 75.0,
+        "n": 44
       },
       {
         "bucket": "80-90%",
-        "predicted_avg": 84.7,
-        "actual_freq": 81.1,
-        "n": 37
+        "predicted_avg": 84.6,
+        "actual_freq": 74.4,
+        "n": 39
       },
       {
         "bucket": "90-100%",
-        "predicted_avg": 93.1,
-        "actual_freq": 76.9,
-        "n": 13
+        "predicted_avg": 93.3,
+        "actual_freq": 83.3,
+        "n": 12
       }
     ]
   }
