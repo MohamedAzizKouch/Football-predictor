@@ -27,9 +27,12 @@ jobs:
         run: python train_and_export.py
 
       - name: Commit updated files (only if changed)
+        if: always()
         run: |
           git config user.name "football-predictor-bot"
           git config user.email "actions@github.com"
-          git add models.json backtest.json elo_ratings.json
+          for f in models.json backtest.json elo_ratings.json; do
+            [ -f "$f" ] && git add "$f"
+          done
           git diff --staged --quiet || git commit -m "Auto-refresh models + backtest + ClubElo ($(date -u +%Y-%m-%d))"
           git push
