@@ -324,18 +324,58 @@
 
   <p class="kicker">Select fixture</p>
   <div class="teamsheet">
-    <div class="league-row">
+    <div class="league-row" style="justify-content:space-between;">
+      <div>
+        <span class="field-label" style="display:inline;">Mode</span>
+        <select id="modeSelect" style="font-size:16px;max-width:220px;margin-left:8px;">
+          <option value="domestic">Domestic league</option>
+          <option value="european">European competition (cross-league)</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="domesticControls" class="league-row">
       <span class="field-label">League</span>
       <select id="leagueSelect"></select>
     </div>
-    <div class="col">
-      <span class="field-label">Home</span>
-      <select id="homeSelect"></select>
+    <div id="domesticTeams" style="display:contents;">
+      <div class="col">
+        <span class="field-label">Home</span>
+        <select id="homeSelect"></select>
+      </div>
+      <div class="col">
+        <span class="field-label">Away</span>
+        <select id="awaySelect"></select>
+      </div>
     </div>
-    <div class="col">
-      <span class="field-label">Away</span>
-      <select id="awaySelect"></select>
+
+    <div id="europeanControls" style="display:none;grid-column:1/-1;">
+      <div class="col" style="border-top:1.5px solid var(--ink);">
+        <span class="field-label">Home team's country</span>
+        <select id="homeCountrySelect" style="margin-bottom:10px;"></select>
+        <span class="field-label">Home team</span>
+        <select id="euroHomeSelect"></select>
+      </div>
+      <div class="col" style="border-top:1.5px solid var(--ink);">
+        <span class="field-label">Away team's country</span>
+        <select id="awayCountrySelect" style="margin-bottom:10px;"></select>
+        <span class="field-label">Away team</span>
+        <select id="euroAwaySelect"></select>
+      </div>
     </div>
+  </div>
+
+  <div id="europeanNote" style="display:none;" class="injury-box" style="margin-bottom:16px;">
+    <span class="field-label" style="display:inline;">Cross-league estimate<span class="heur-tag">ClubElo-based</span></span>
+    <p style="margin:8px 0 0;font-size:13px;">
+      Uses real ratings from ClubElo.com, calculated from actual historical match results
+      — including real cross-league games (Champions/Europa/Conference League) — so
+      cross-league comparability is grounded in real evidence, not an approximation. The
+      Elo-to-expected-goals conversion uses a published formula from the World Football Elo
+      Ratings methodology, calibrated on international matches — a reasonable but imperfect
+      transfer to club football. Treat this as a solid estimate, not as reliable as the
+      single-league domestic models fitted directly on their own data.
+    </p>
   </div>
 
   <div class="go-row">
@@ -407,9 +447,11 @@
 <script>
 const MODELS_URL = "models.json";
 const BACKTEST_URL = "backtest.json";
+const ELO_URL = "elo_ratings.json";
 const INJURIES_URL = "injuries.json";
 let MODELS = null;
 let BACKTEST = null;
+let ELO_RATINGS = null;
 let INJURIES = null;
 
 const $ = (id) => document.getElementById(id);
@@ -639,6 +681,40 @@ function renderInjuryNote(league, home, away, lamH, lamA){
   `;
 }
 
+function eloWinExpectancy(eloA, eloB){
+  return 1.0 / (1.0 + Math.pow(10, -(eloA - eloB) / 400.0));
+}
+
+function eloWinExpectancyToExpectedGoals(w){
+  w = Math.min(Math.max(w, 0.0), 1.0);
+  let val;
+  if(w <= 0.9){
+    val = 3.90388*w**4 - 0.58486*w**3 - 2.98315*w**2 + 3.13160*w + 0.33193;
+  } else {
+    const x = w - 0.9;
+    val = 308097.45501*x**4 - 42803.04696*x**3 + 2116.35304*x**2 - 9.61869*x + 2.86899;
+  }
+  return Math.min(Math.max(val, 0.05), 5.0);
+}
+
+function scoreMatrixCrossLeague(eloHome, eloAway, maxGoals=8){
+  const HOME_ADV_ELO = 100;
+  const wHome = eloWinExpectancy(eloHome + HOME_ADV_ELO, eloAway);
+  const wAway = 1.0 - wHome;
+  const lamH = eloWinExpectancyToExpectedGoals(wHome);
+  const lamA = eloWinExpectancyToExpectedGoals(wAway);
+  const rho = -0.06; // neutral default -- see note in clubelo.py
+
+  const n = maxGoals+1;
+  let matrix = [];
+  for(let i=0;i<n;i++) matrix.push(new Array(n).fill(0));
+  for(let i=0;i<n;i++) for(let j=0;j<n;j++) matrix[i][j] = poissonPmf(i, lamH) * poissonPmf(j, lamA);
+  for(let i=0;i<2;i++) for(let j=0;j<2;j++) matrix[i][j] *= dcAdjustment(i, j, lamH, lamA, rho);
+  let total=0; for(let i=0;i<n;i++) for(let j=0;j<n;j++) total += matrix[i][j];
+  for(let i=0;i<n;i++) for(let j=0;j<n;j++) matrix[i][j] /= total;
+  return {matrix, lamH, lamA, n};
+}
+
 function kellyStake(prob, odds, bankroll, fraction=0.25){
   const b = odds - 1;
   if(b<=0) return 0;
@@ -727,26 +803,82 @@ function populateTeams(){
   if(teams.length>1) $("awaySelect").selectedIndex = 1;
 }
 
-function runPrediction(){
-  const league = $("leagueSelect").value;
-  const home = $("homeSelect").value;
-  const away = $("awaySelect").value;
-  if(home===away){
-    $("status").textContent = "Home and away must be different teams.";
-    return;
-  }
-  $("status").textContent = "";
+function populateEuropeanControls(){
+  if(!ELO_RATINGS) return;
+  const countries = Object.keys(ELO_RATINGS).sort();
+  $("homeCountrySelect").innerHTML = countries.map(c=>`<option value="${c}">${c}</option>`).join("");
+  $("awayCountrySelect").innerHTML = countries.map(c=>`<option value="${c}">${c}</option>`).join("");
+  if(countries.length>1) $("awayCountrySelect").selectedIndex = 1;
+  populateEuroTeamDropdown("homeCountrySelect","euroHomeSelect");
+  populateEuroTeamDropdown("awayCountrySelect","euroAwaySelect");
+}
 
-  const model = MODELS[league];
-  const {matrix, lamH, lamA, n} = scoreMatrix(model, home, away);
+function populateEuroTeamDropdown(countrySelectId, teamSelectId){
+  const country = $(countrySelectId).value;
+  const clubs = Object.keys(ELO_RATINGS[country]).sort();
+  $(teamSelectId).innerHTML = clubs.map(c=>`<option value="${c}">${c}</option>`).join("");
+}
+
+function setMode(mode){
+  const isEuropean = mode === "european";
+  $("domesticControls").style.display = isEuropean ? "none" : "flex";
+  $("domesticTeams").style.display = isEuropean ? "none" : "contents";
+  $("europeanControls").style.display = isEuropean ? "grid" : "none";
+  if(isEuropean) $("europeanControls").style.gridTemplateColumns = "1fr 1fr";
+  $("europeanNote").style.display = isEuropean ? "block" : "none";
+  if(isEuropean && (!ELO_RATINGS || Object.keys(ELO_RATINGS).length < 2)){
+    $("status").textContent = "elo_ratings.json not found or empty — run the training workflow to populate it.";
+  } else {
+    $("status").textContent = "";
+  }
+}
+
+function runPrediction(){
+  const isEuropean = $("modeSelect").value === "european";
+  let league, home, away, matrix, lamH, lamA, n, homeLeagueLabel="", awayLeagueLabel="";
+
+  if(isEuropean){
+    const homeCountry = $("homeCountrySelect").value;
+    const awayCountry = $("awayCountrySelect").value;
+    home = $("euroHomeSelect").value;
+    away = $("euroAwaySelect").value;
+    if(homeCountry===awayCountry && home===away){
+      $("status").textContent = "Home and away must be different teams.";
+      return;
+    }
+    $("status").textContent = "";
+    const eloHome = ELO_RATINGS[homeCountry][home];
+    const eloAway = ELO_RATINGS[awayCountry][away];
+    const result = scoreMatrixCrossLeague(eloHome, eloAway);
+    matrix = result.matrix; lamH = result.lamH; lamA = result.lamA; n = result.n;
+    league = `${homeCountry} vs ${awayCountry} (cross-league, ClubElo)`;
+    homeLeagueLabel = ` (Elo ${eloHome.toFixed(0)})`; awayLeagueLabel = ` (Elo ${eloAway.toFixed(0)})`;
+  } else {
+    league = $("leagueSelect").value;
+    home = $("homeSelect").value;
+    away = $("awaySelect").value;
+    if(home===away){
+      $("status").textContent = "Home and away must be different teams.";
+      return;
+    }
+    $("status").textContent = "";
+    const model = MODELS[league];
+    const result = scoreMatrix(model, home, away);
+    matrix = result.matrix; lamH = result.lamH; lamA = result.lamA; n = result.n;
+  }
+
   const m = computeMarkets(matrix, n);
 
-  $("homeLabel").textContent = home;
-  $("awayLabel").textContent = away;
+  $("homeLabel").textContent = home + homeLeagueLabel;
+  $("awayLabel").textContent = away + awayLeagueLabel;
   $("homeXg").textContent = lamH.toFixed(2);
   $("awayXg").textContent = lamA.toFixed(2);
 
-  renderInjuryNote(league, home, away, lamH, lamA);
+  if(!isEuropean){
+    renderInjuryNote(league, home, away, lamH, lamA);
+  } else {
+    $("injuryNote").innerHTML = "";
+  }
 
   renderTable($("tbl1x2"), [
     [`Home Win (1)`, m.pHome], [`Draw (X)`, m.pDraw], [`Away Win (2)`, m.pAway],
@@ -771,7 +903,12 @@ function runPrediction(){
   renderTable($("tblTotals"), ttRows);
 
   renderCorrectScoreGrid(matrix, n);
-  renderPerformance(league);
+  if(!isEuropean){
+    renderPerformance(league);
+  } else {
+    $("perfSection").innerHTML = `<p class="perf-note">Backtest calibration is only computed for single-league domestic models — cross-league European estimates don't have an equivalent historical backtest yet (see the note above the fixture selector for why).</p>`;
+    $("perfLeagueLabel").textContent = "";
+  }
 
   const flatProbs = {
     "Home Win (1)": m.pHome, "Draw (X)": m.pDraw, "Away Win (2)": m.pAway,
@@ -816,6 +953,13 @@ async function init(){
     INJURIES = null; // fine — feature just stays off
   }
 
+  try{
+    const eloResp = await fetch(ELO_URL, {cache:"no-store"});
+    if(eloResp.ok) ELO_RATINGS = await eloResp.json();
+  }catch(e){
+    ELO_RATINGS = null; // fine — European mode just shows a message and stays unusable until this exists
+  }
+
   const leagueCount = Object.keys(MODELS).length;
   let latest = null;
   Object.values(MODELS).forEach(m=>{ if(m.last_updated && (!latest || m.last_updated>latest)) latest=m.last_updated; });
@@ -824,6 +968,11 @@ async function init(){
   populateLeagues();
   $("leagueSelect").addEventListener("change", populateTeams);
   $("goBtn").addEventListener("click", runPrediction);
+  $("modeSelect").addEventListener("change", (e) => setMode(e.target.value));
+  $("homeCountrySelect").addEventListener("change", () => populateEuroTeamDropdown("homeCountrySelect","euroHomeSelect"));
+  $("awayCountrySelect").addEventListener("change", () => populateEuroTeamDropdown("awayCountrySelect","euroAwaySelect"));
+  populateEuropeanControls();
+  setMode("domestic");
 }
 
 init();
