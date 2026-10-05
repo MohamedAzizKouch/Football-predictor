@@ -2,7 +2,7 @@
   "Premier League": {
     "n_predictions": 739,
     "brier_score": 0.6159,
-    "log_loss": 1.0334,
+    "log_loss": 1.0335,
     "naive_baseline_brier": 0.6544,
     "naive_baseline_log_loss": 1.0803,
     "beats_naive_baseline": true,
@@ -51,7 +51,7 @@
       },
       {
         "bucket": "70-80%",
-        "predicted_avg": 75.2,
+        "predicted_avg": 75.1,
         "actual_freq": 55.2,
         "n": 29
       },
@@ -128,64 +128,64 @@
     ]
   },
   "League One": {
-    "n_predictions": 1114,
-    "brier_score": 0.6375,
-    "log_loss": 1.0638,
-    "naive_baseline_brier": 0.6484,
-    "naive_baseline_log_loss": 1.0719,
+    "n_predictions": 1116,
+    "brier_score": 0.6377,
+    "log_loss": 1.0636,
+    "naive_baseline_brier": 0.6489,
+    "naive_baseline_log_loss": 1.0726,
     "beats_naive_baseline": true,
     "home_win_calibration": [
       {
         "bucket": "0-10%",
-        "predicted_avg": 8.4,
-        "actual_freq": 35.7,
-        "n": 14
+        "predicted_avg": 8.5,
+        "actual_freq": 37.5,
+        "n": 16
       },
       {
         "bucket": "10-20%",
-        "predicted_avg": 15.3,
-        "actual_freq": 29.6,
-        "n": 54
+        "predicted_avg": 15.5,
+        "actual_freq": 30.2,
+        "n": 53
       },
       {
         "bucket": "20-30%",
-        "predicted_avg": 25.7,
-        "actual_freq": 30.8,
-        "n": 159
+        "predicted_avg": 25.6,
+        "actual_freq": 30.1,
+        "n": 156
       },
       {
         "bucket": "30-40%",
-        "predicted_avg": 35.5,
-        "actual_freq": 35.2,
-        "n": 267
+        "predicted_avg": 35.3,
+        "actual_freq": 34.7,
+        "n": 265
       },
       {
         "bucket": "40-50%",
         "predicted_avg": 45.0,
-        "actual_freq": 47.5,
-        "n": 263
+        "actual_freq": 46.7,
+        "n": 272
       },
       {
         "bucket": "50-60%",
         "predicted_avg": 54.7,
-        "actual_freq": 49.3,
-        "n": 201
+        "actual_freq": 50.0,
+        "n": 200
       },
       {
         "bucket": "60-70%",
-        "predicted_avg": 64.3,
-        "actual_freq": 66.7,
-        "n": 108
+        "predicted_avg": 64.4,
+        "actual_freq": 67.0,
+        "n": 106
       },
       {
         "bucket": "70-80%",
-        "predicted_avg": 74.3,
+        "predicted_avg": 74.2,
         "actual_freq": 60.0,
         "n": 35
       },
       {
         "bucket": "80-90%",
-        "predicted_avg": 83.5,
+        "predicted_avg": 83.3,
         "actual_freq": 61.5,
         "n": 13
       }
