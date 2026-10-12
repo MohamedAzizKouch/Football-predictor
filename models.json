@@ -84,7 +84,7 @@
     "home_advantage": 1.182625435468258,
     "rho": -0.11983020368230107,
     "n_matches": 810,
-    "last_updated": "2026-10-05"
+    "last_updated": "2026-10-12"
   },
   "Championship": {
     "teams": [
@@ -198,7 +198,7 @@
     "home_advantage": 1.236929227939012,
     "rho": -0.0924717050384668,
     "n_matches": 1199,
-    "last_updated": "2026-10-05"
+    "last_updated": "2026-10-12"
   },
   "League One": {
     "teams": [
@@ -321,7 +321,7 @@
     "home_advantage": 1.2010042920167796,
     "rho": -0.027658135089695342,
     "n_matches": 1194,
-    "last_updated": "2026-10-05"
+    "last_updated": "2026-10-12"
   },
   "Ligue 1": {
     "teams": [
@@ -402,7 +402,7 @@
     "home_advantage": 1.229922223734606,
     "rho": -0.06995798454447924,
     "n_matches": 657,
-    "last_updated": "2026-10-05"
+    "last_updated": "2026-10-12"
   },
   "Bundesliga": {
     "teams": [
@@ -483,7 +483,7 @@
     "home_advantage": 1.2677507697317825,
     "rho": -0.05100586754550717,
     "n_matches": 648,
-    "last_updated": "2026-10-05"
+    "last_updated": "2026-10-12"
   },
   "Serie A": {
     "teams": [
@@ -567,7 +567,7 @@
     "home_advantage": 1.0843821183501374,
     "rho": 0.023169808244992564,
     "n_matches": 810,
-    "last_updated": "2026-10-05"
+    "last_updated": "2026-10-12"
   },
   "La Liga": {
     "teams": [
@@ -657,7 +657,7 @@
     "home_advantage": 1.3566412729501287,
     "rho": -0.02343968582850482,
     "n_matches": 829,
-    "last_updated": "2026-10-05"
+    "last_updated": "2026-10-12"
   },
   "Eredivisie": {
     "teams": [
@@ -738,6 +738,6 @@
     "home_advantage": 1.1573839671295367,
     "rho": -0.1374313766304918,
     "n_matches": 675,
-    "last_updated": "2026-10-05"
+    "last_updated": "2026-10-12"
   }
 }
